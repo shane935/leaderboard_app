@@ -1,0 +1,24 @@
+{
+  "name": "leaderboard",
+  "version": "1.0.0",
+  "authors": [
+    "Shane <shane@bluechilli.com>"
+  ],
+  "description": "BLueChilli's leaderboard generator",
+  "main": "index.html",
+  "license": "MIT",
+  "private": true,
+  "ignore": [
+    "**/.*",
+    "node_modules",
+    "bower_components",
+    "test",
+    "tests"
+  ],
+  "dependencies": {
+    "react": "~0.10.0",
+    "foundation": "~5.2.3",
+    "Array.prototype.find": "~0.1.1",
+    "Array.prototype.findIndex": "~0.1.1"
+  }
+}

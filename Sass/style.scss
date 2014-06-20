@@ -1,0 +1,33 @@
+@import "../bower_components/foundation/scss/normalize";
+@import "../bower_components/foundation/scss/foundation";
+
+
+.user-select{
+	position: relative;
+	.user-select-list{
+		display: none;
+		width: 100%;
+		border: 1px solid #ccc;
+		@extend .no-bullet;
+		position: absolute;
+		top: 57px;
+		background-color: white;
+		z-index: 2;
+		li{
+			padding: 3px 5px;
+			border-bottom: 1px solid #ccc;
+			&:last-child{
+				border-bottom: 0;
+			}
+			&:hover{
+				cursor: pointer;
+			}
+			&:hover, &.active{
+				background-color: #fafafa;
+			}
+		}
+		&.show{
+			display: block;
+		}
+	}
+}
