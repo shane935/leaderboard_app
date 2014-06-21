@@ -26,7 +26,62 @@
       }
    ]
 
+   function setsSort(a, b){
+      return b.sets - a.sets;
+   }
+
    var LeaderBoardApp = React.createClass({
+      getInitialState: function(){
+         this.props.names.sort(setsSort);
+         return {names : this.props.names}
+      },
+      handleFormSubmit: function(e){
+         e.preventDefault();
+         var input1Name = e.target[0].value,
+           input2Name = e.target[2].value,
+           input1Sets = parseInt(e.target[1].value),
+           input2Sets = parseInt(e.target[3].value),
+           namesTemp = this.state.names;
+
+         var nameUnique = this.props.names.findIndex(function(obj){
+           return obj.fname === input1Name;
+         });
+         var name2Unique = this.props.names.findIndex(function(obj){
+           return obj.fname === input2Name;
+         });
+
+         if(nameUnique === -1 || nameUnique === undefined){
+            namesTemp.push({"fname" : input1Name, "sets" : input1Sets});
+         }
+         else{
+            namesTemp.map(function(obj, index){
+               if (index === nameUnique){
+                  obj.sets = obj.sets + input1Sets;
+                  return obj;
+               }
+               else{
+                  return obj
+               }
+            });
+         }
+         if(name2Unique === -1 || name2Unique === undefined){
+            namesTemp.push({"fname" : input2Name, "sets" : input2Sets});
+         }
+         else{
+            namesTemp.map(function(obj, index){
+               if (index === name2Unique){
+                  obj.sets = obj.sets + input2Sets;
+                  return obj;
+               }
+               else{
+                  return obj
+               }
+            });
+         }
+         namesTemp.sort(setsSort);
+         this.setState({names: namesTemp});
+         return false;
+      },
       render: function(){
          return(
             <div>
@@ -34,7 +89,7 @@
                   <LeaderBoardTable names={this.props.names} />
                </div>
                <div className="medium-6 column">
-                  <LeaderBoardForm names={this.props.names} />
+                  <LeaderBoardForm formSubmit={this.handleFormSubmit} names={this.props.names} />
                </div>
             </div>
          )
@@ -70,42 +125,9 @@
    })
 
    var LeaderBoardForm = React.createClass({
-      submit: function(e){
-         e.preventDefault();
-
-         var input1Name = e.target[0].value,
-            input2Name = e.target[2].value,
-            input1Sets = parseInt(e.target[1].value),
-            input2Sets = parseInt(e.target[3].value);
-
-         var nameUnique = this.props.names.findIndex(function(obj){
-            return obj.fname === input1Name;
-         });
-         var name2Unique = this.props.names.findIndex(function(obj){
-            return obj.fname === input2Name;
-         });
-
-         debugger;
-         if(nameUnique === -1 || nameUnique === undefined){
-            this.props.names.push({"fname" : input1Name, "sets" : input1Sets});
-         }
-         else{
-            this.props.names[nameUnique].sets = this.props.names[nameUnique].sets + input1Sets;
-         }
-         if(name2Unique === -1 || name2Unique === undefined){
-            this.props.names.push({"fname" : input2Name, "sets" : input2Sets});
-         }
-         else{
-            this.props.names[name2Unique].sets = this.props.names[name2Unique].sets + input2Sets;
-         }
-
-         console.log(this.props.names);
-
-         return false;
-      },
       render: function() {
          return (
-            <form onSubmit={this.submit}>
+            <form onSubmit={this.props.formSubmit}>
                <div className="row">
                   <div className="small-9 column">
                      <UserSelect names={this.props.names} />
@@ -168,6 +190,10 @@
             this.setState({selectedElement: 0});
          }
       },
+      handleListClick: function(e){
+         // Callback for the click on li child
+         this.setState({nameValue: e.target.innerHTML});
+      },
       handleKeyPress: function(e){
          var element = this.state.selectedElement;
          if (e.key === "ArrowDown") {
@@ -185,26 +211,15 @@
    		return (
    			<div className="user-select">
    			  	<label onFocus={this.showList} onBlur={this.hideList}>Player 1
-   			    	<input type="text" onKeyUp={this.handleKeyPress} onChange={this.handleChange} value={this.state.nameValue}/>
+   			    	<input type="text" onKeyDown={this.handleKeyPress} onChange={this.handleChange} value={this.state.nameValue}/>
    			  	</label>
-   			  	<UserSelectList showNode={this.state.show} selectedEl={this.state.selectedElement} names={this.state.names} context={this}/>
+   			  	<UserSelectList showNode={this.state.show} selectedEl={this.state.selectedElement} names={this.state.names} listClick={this.handleListClick}/>
    			</div>
    		);
    	}
    });
 
    var UserSelectList = React.createClass({
-      getDefaultProps: function(){
-         return {
-            parentContext: this.props.context
-         }
-      },
-      selectName: function(e){
-         // Pretty sure this is the wrong way to do this.
-         // Potentially something to do with two way binding
-         // Maybe just return index get value from data
-         this.props.parentContext.setState({nameValue: e.target.innerHTML});
-      },
    	render: function() {
    		var cx = React.addons.classSet;
    		var userSelectClasses = cx({
@@ -215,8 +230,8 @@
          var listItem = this.props.names.map(function(names){
             var listActiveClass = cx({
                "active": i++ === this.props.selectedEl
-            })
-            return <li className={listActiveClass} onClick={this.selectName}>{names.fname}</li>
+            });
+            return <li className={listActiveClass} onClick={this.props.listClick}>{names.fname}</li>
          }.bind(this));
    		return (
    			<ul className={userSelectClasses}>
