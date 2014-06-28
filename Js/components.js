@@ -15,11 +15,9 @@
          this.props.names.sort(rankingSort);
          return {names : this.props.names}
       },
-      newItem: function(newObject){
-         socket.emit('new item', newObject);
-      },
-      updateItem: function(updatedObject){
-         socket.emit('update item', updatedObject);
+      saveUpdates: function(updates){
+         debugger;
+         socket.emit('updates', updates);
       },
       updateTable: function(updatedData){
          updatedData.sort(rankingSort);
@@ -35,7 +33,8 @@
            input2Name = e.target[2].value,
            input1Sets = parseInt(e.target[1].value),
            input2Sets = parseInt(e.target[3].value),
-           namesTemp = this.state.names;
+           namesTemp = this.state.names,
+           updatesToSave = [];
 
          var nameUnique = this.props.names.findIndex(function(obj){
            return obj.fname === input1Name;
@@ -58,7 +57,7 @@
 
          if(nameUnique === -1 || nameUnique === undefined){
             namesTemp.push({"fname" : input1Name, "sets" : input1Sets, "ranking" : player1UpdateRank});
-            this.newItem({"fname" : input1Name, "sets" : input1Sets, "ranking" : player1UpdateRank});
+            updatesToSave.push({"fname" : input1Name, "sets" : input1Sets, "ranking" : player1UpdateRank});
          }
          else{
             namesTemp.map(function(obj, index){
@@ -71,11 +70,12 @@
                   return obj
                }
             });
-            this.updateItem({"fname": namesTemp[nameUnique].fname, "sets": namesTemp[nameUnique].sets, "ranking": namesTemp[nameUnique].ranking});
+            updatesToSave.push({"fname": namesTemp[nameUnique].fname, "sets": namesTemp[nameUnique].sets, "ranking": namesTemp[nameUnique].ranking});
+
          }
          if(name2Unique === -1 || name2Unique === undefined){
             namesTemp.push({"fname" : input2Name, "sets" : input2Sets, "ranking" : player2UpdateRank});
-            this.newItem({"fname" : input2Name, "sets" : input2Sets, "ranking" : player2UpdateRank});
+            updatesToSave.push({"fname" : input2Name, "sets" : input2Sets, "ranking" : player2UpdateRank});
          }
          else{
             namesTemp.map(function(obj, index){
@@ -88,9 +88,10 @@
                   return obj
                }
             });
-            this.updateItem({"fname": namesTemp[name2Unique].fname, "sets": namesTemp[name2Unique].sets, "ranking": namesTemp[name2Unique].ranking});
+            updatesToSave.push({"fname": namesTemp[name2Unique].fname, "sets": namesTemp[name2Unique].sets, "ranking": namesTemp[name2Unique].ranking});
          }
          namesTemp.sort(rankingSort);
+         this.saveUpdates(updatesToSave);
          this.setState({names: namesTemp});
          return false;
       },

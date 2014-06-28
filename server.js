@@ -33,33 +33,33 @@ app.get('/data', function(request, result){
 
 io.on('connection', function(socket){
   console.log("Connected")
-  socket.on('new item', function(obj){
+
+  socket.on('updates', function(arr){
     db.collection('rankings', function(err, collection){
-      collection.insert(obj, function(err, result){
-        collection.find({}).toArray(function(err,data){
-          io.emit('table updates', data);
-        });
+      for(i = 0; i < arr.length; i++){
+        var obj = arr[i];
+        console.log(obj);
+        collection.update(
+          {fname: obj.fname},
+          {
+            $set: {
+                fname: obj.fname,
+                sets: obj.sets, 
+                ranking: obj.ranking
+            }
+          },
+          { upsert: true, },
+          function(err, result){
+            console.log(err);
+            console.log(result);
+          }
+        );
+      }
+      collection.find({}).toArray(function(err,data){
+        io.emit('table updates', data);
       });
     });
   });
-  socket.on('update item', function(obj){
-    db.collection('rankings', function(err, collection){
-      collection.update(
-        {fname: obj.fname},
-        {
-          $set: {
-              sets: obj.sets, 
-              ranking: obj.ranking
-          }
-        },
-        function(err, result){
-          collection.find({}).toArray(function(err,data){
-            io.emit('table updates', data);
-          });
-        }
-      );
-    })
-  })
 
   socket.on('disconnect', function(){
     console.log("Disconected");
