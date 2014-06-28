@@ -5180,6 +5180,9 @@ th.hide-for-touch {
   th.show-for-print {
     display: table-cell !important; } }
 
+table {
+  width: 100%; }
+
 .user-select {
   position: relative; }
   .user-select .user-select-list {

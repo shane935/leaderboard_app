@@ -1,39 +1,38 @@
    /** @jsx React.DOM */
-   var data = [
-      {
-         "fname" : "Shane",
-         "sets" : 5
-      },
-      {
-         "fname" : "Seb",
-         "sets" : 2
-      },
-      {
-         "fname" : "Katrina",
-         "sets" : 1
-      },
-      {
-         "fname" : "Rav",
-         "sets" : 0
-      },
-      {
-         "fname" : "Shannon",
-         "sets" : 9
-      },
-      {
-         "fname" : "Joe",
-         "sets" : 2
-      }
-   ]
 
-   function setsSort(a, b){
-      return b.sets - a.sets;
+   $.get("http://localhost:3000/data", function(data){
+      startApp(data);
+   })
+
+   // $.ajax({
+   //    url: 'http://localhost:3000/add',
+   //    type: 'POST',
+   //    data: JSON.stringify({fn3ame: "Peter", sets: "3"}),
+   //    contentType: 'application/json; charset=utf-8'
+   // });
+
+   var socket = io();
+
+   function rankingSort(a, b){
+      return b.ranking - a.ranking;
    }
 
    var LeaderBoardApp = React.createClass({
       getInitialState: function(){
-         this.props.names.sort(setsSort);
+         this.props.names.sort(rankingSort);
          return {names : this.props.names}
+      },
+      saveData: function(obj){
+         socket.emit('save data', obj);
+      },
+      updateComponent: function(updatedData){
+         debugger;
+         updatedData.sort(rankingSort);
+         this.setState({names: updatedData})
+      },
+      componentWillMount: function(){
+         var that = this;
+         socket.on('updated', that.updateComponent);
       },
       handleFormSubmit: function(e){
          e.preventDefault();
@@ -50,13 +49,26 @@
            return obj.fname === input2Name;
          });
 
+         // Ranking logic based on ELO.
+
+         var player1Ranking = nameUnique != -1 ? namesTemp[nameUnique].ranking : 1000,
+            player2Ranking = name2Unique != -1 ? namesTemp[name2Unique].ranking : 1000,
+            player1ExpectedWin = 1/(1+Math.pow(10, (player2Ranking - player1Ranking)/400)),
+            player2ExpectedWin = 1/(1+Math.pow(10, (player1Ranking - player2Ranking)/400)),
+            player1ExpectedScore = player1ExpectedWin * (input1Sets + input2Sets),
+            player2ExpectedScore = player2ExpectedWin * (input1Sets + input2Sets),
+            player1UpdateRank = player1Ranking + 32*(input1Sets - player1ExpectedScore),
+            player2UpdateRank = player2Ranking + 32*(input2Sets - player2ExpectedScore);
+
+
          if(nameUnique === -1 || nameUnique === undefined){
-            namesTemp.push({"fname" : input1Name, "sets" : input1Sets});
+            namesTemp.push({"fname" : input1Name, "sets" : input1Sets, "ranking" : player1UpdateRank});
          }
          else{
             namesTemp.map(function(obj, index){
                if (index === nameUnique){
                   obj.sets = obj.sets + input1Sets;
+                  obj.ranking = player1UpdateRank;
                   return obj;
                }
                else{
@@ -65,12 +77,13 @@
             });
          }
          if(name2Unique === -1 || name2Unique === undefined){
-            namesTemp.push({"fname" : input2Name, "sets" : input2Sets});
+            namesTemp.push({"fname" : input2Name, "sets" : input2Sets, "ranking" : player2UpdateRank});
          }
          else{
             namesTemp.map(function(obj, index){
                if (index === name2Unique){
                   obj.sets = obj.sets + input2Sets;
+                  obj.ranking = player2UpdateRank;
                   return obj;
                }
                else{
@@ -78,18 +91,19 @@
                }
             });
          }
-         namesTemp.sort(setsSort);
+         namesTemp.sort(rankingSort);
+         this.saveData(namesTemp);
          this.setState({names: namesTemp});
          return false;
       },
       render: function(){
          return(
             <div>
-               <div className="medium-6 column">
-                  <LeaderBoardTable names={this.props.names} />
+               <div className="medium-6 medium-push-6 column">
+                  <LeaderBoardForm formSubmit={this.handleFormSubmit} names={this.state.names} />
                </div>
-               <div className="medium-6 column">
-                  <LeaderBoardForm formSubmit={this.handleFormSubmit} names={this.props.names} />
+               <div className="medium-6 medium-pull-6 column">
+                  <LeaderBoardTable names={this.state.names} />
                </div>
             </div>
          )
@@ -103,7 +117,8 @@
                <tr>
                  <th>{name.fname}</th>
                  <th>{name.sets}</th>
-                 <th>{name.sets * 3}</th>
+                 <th>{parseInt(name.ranking)}</th>
+
                </tr>
             )
          });
@@ -113,7 +128,7 @@
                   <tr>
                      <th>Name</th>
                      <th>Sets</th>
-                     <th>Points</th>
+                     <th>Ranking</th>
                   </tr>
                </thead>
                <tbody>
@@ -130,21 +145,21 @@
             <form onSubmit={this.props.formSubmit}>
                <div className="row">
                   <div className="small-9 column">
-                     <UserSelect names={this.props.names} />
+                     <UserSelect player="1" names={this.props.names} />
                   </div>
                   <div className="small-3 column">
                      <label for="">Sets
-                       <input type="number" />
+                       <input min="0" required type="number" />
                      </label>
                   </div>
                </div>
                <div className="row">
                   <div className="small-9 column">
-                     <UserSelect names={this.props.names} />
+                     <UserSelect player="2" names={this.props.names} />
                   </div>
                   <div className="small-3 column">
                      <label for="">Sets
-                        <input type="number" />
+                        <input min="0" required type="number" />
                      </label>
                   </div>
                </div>
@@ -195,6 +210,7 @@
          this.setState({nameValue: e.target.innerHTML});
       },
       handleKeyPress: function(e){
+         console.log(e.key);
          var element = this.state.selectedElement;
          if (e.key === "ArrowDown") {
             this.setState({selectedElement: element < this.state.names.length -1 ? element + 1 : element});
@@ -202,7 +218,7 @@
          else if (e.key === "ArrowUp"){
             this.setState({selectedElement: element > 0 ? element - 1 : 0});
          }
-         else if (e.key === "Enter"){
+         else if (e.key === "Enter" || e.key === "Tab"){
             this.setState({nameValue: this.state.names[element].fname});
             this.setState({show: false});
          }
@@ -210,8 +226,8 @@
    	render: function() {	
    		return (
    			<div className="user-select">
-   			  	<label onFocus={this.showList} onBlur={this.hideList}>Player 1
-   			    	<input type="text" onKeyDown={this.handleKeyPress} onChange={this.handleChange} value={this.state.nameValue}/>
+   			  	<label onFocus={this.showList} onBlur={this.hideList}>Player {this.props.player}
+   			    	<input required type="text" onKeyDown={this.handleKeyPress} onChange={this.handleChange} value={this.state.nameValue}/>
    			  	</label>
    			  	<UserSelectList showNode={this.state.show} selectedEl={this.state.selectedElement} names={this.state.names} listClick={this.handleListClick}/>
    			</div>
@@ -241,8 +257,10 @@
    	}
    })
 
+   function startApp(data){
+      React.renderComponent( 
+         <LeaderBoardApp names={data} />,
+         document.getElementById('UserSelect')
+      );
+   }
 
-   React.renderComponent( 
-   	<LeaderBoardApp names={data} />,
-    	document.getElementById('UserSelect')
-  	);

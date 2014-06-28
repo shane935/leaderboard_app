@@ -1,0 +1,25 @@
+{
+  "name": "leaderboard",
+  "version": "0.0.1",
+  "description": "Leaderboard app",
+  "main": "server.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "start": "node server.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git://github.com/shane935/leaderboard_app.git"
+  },
+  "author": "Shane Patrick",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/shane935/leaderboard_app/issues"
+  },
+  "homepage": "https://github.com/shane935/leaderboard_app",
+  "dependencies": {
+    "express": "^4.4.4",
+    "body-parser": "^1.4.3",
+    "socket.io": "^1.0.6"
+  }
+}

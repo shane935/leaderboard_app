@@ -3,17 +3,26 @@
   <head>
     <script src="bower_components/react/react-with-addons.js"></script>
     <script src="bower_components/react/JSXTransformer.js"></script>
+    <script src="//www.parsecdn.com/js/parse-1.2.18.min.js"></script>
     <link rel="stylesheet" type="text/css" href="css/style.css">
   </head>
   <body>
     <div class="row">
       <div class="small-12 column">
-        <h1>Leaderboard</h1>
+        <h1>Squash Leaderboard</h1>
       </div>
+      <hr />
       <div id="UserSelect"></div>
     </div>
 
-    <script type="text/jsx" src="bower_components/Array.prototype.findIndex/index.js"></script>
+    <script type="text/javascript">
+      Parse.initialize("jLvq1bMrhOkXGixPrq84J0ToQ3CmiuUsRtSit1LD", "WlBByS4I2vvBuflS8TQq63BlDrqZ67ft3Orxfn5f");
+    </script>
+
+    <script src="bower_components/Array.prototype.findIndex/index.js"></script>
+    <script src="bower_components/Array.prototype.find/index.js"></script>
+    <script src="bower_components/jquery/dist/jquery.js"></script>
+    <script src="/socket.io/socket.io.js"></script>
     <script type="text/jsx" src="Js/min/components-ck.js"></script>
   </body>
 </html>
