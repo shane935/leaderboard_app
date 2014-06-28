@@ -5183,6 +5183,9 @@ th.hide-for-touch {
 table {
   width: 100%; }
 
+.hide {
+  display: none; }
+
 .user-select {
   position: relative; }
   .user-select .user-select-list {

@@ -56,7 +56,7 @@ io.on('connection', function(socket){
         );
       }
       collection.find({}).toArray(function(err,data){
-        io.emit('table updates', data);
+        socket.broadcast.emit('table updates', data);
       });
     });
   });

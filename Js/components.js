@@ -16,7 +16,6 @@
          return {names : this.props.names}
       },
       saveUpdates: function(updates){
-         debugger;
          socket.emit('updates', updates);
       },
       updateTable: function(updatedData){
@@ -102,10 +101,30 @@
                   <LeaderBoardForm formSubmit={this.handleFormSubmit} names={this.state.names} />
                </div>
                <div className="medium-6 medium-pull-6 column">
+                  <AlertBox />
                   <LeaderBoardTable names={this.state.names} />
                </div>
             </div>
          )
+      }
+   });
+
+   var AlertBox = React.createClass({
+      componentWillMount: function(){
+         var that = this;
+         socket.on('table updates', function(){
+            that.getDOMNode().classList.remove('hide');
+            setTimeout(function(){
+               that.getDOMNode().classList.add('hide');
+            }, 5000);
+         });
+      },
+      render: function(){
+         return (
+            <div data-alert className="alert-box info radius hide">
+              Form has been updated
+            </div>
+         );
       }
    })
 
@@ -117,7 +136,6 @@
                  <th>{name.fname}</th>
                  <th>{name.sets}</th>
                  <th>{parseInt(name.ranking)}</th>
-
                </tr>
             )
          });
@@ -218,6 +236,9 @@
          }
          else if (e.key === "Enter" || e.key === "Tab"){
             // TODO: this errors on new name
+            if (e.key === "Enter") {
+               e.preventDefault();
+            };
             this.setState({nameValue: this.state.names[element].fname});
             this.setState({show: false});
          }
