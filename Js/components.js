@@ -4,13 +4,6 @@
       startApp(data);
    })
 
-   // $.ajax({
-   //    url: 'http://localhost:3000/add',
-   //    type: 'POST',
-   //    data: JSON.stringify({fn3ame: "Peter", sets: "3"}),
-   //    contentType: 'application/json; charset=utf-8'
-   // });
-
    var socket = io();
 
    function rankingSort(a, b){
@@ -22,17 +15,19 @@
          this.props.names.sort(rankingSort);
          return {names : this.props.names}
       },
-      saveData: function(obj){
-         socket.emit('save data', obj);
+      newItem: function(newObject){
+         socket.emit('new item', newObject);
       },
-      updateComponent: function(updatedData){
-         debugger;
+      updateItem: function(updatedObject){
+         socket.emit('update item', updatedObject);
+      },
+      updateTable: function(updatedData){
          updatedData.sort(rankingSort);
-         this.setState({names: updatedData})
+         this.setState({names: updatedData});
       },
       componentWillMount: function(){
          var that = this;
-         socket.on('updated', that.updateComponent);
+         socket.on('table updates', that.updateTable);
       },
       handleFormSubmit: function(e){
          e.preventDefault();
@@ -63,6 +58,7 @@
 
          if(nameUnique === -1 || nameUnique === undefined){
             namesTemp.push({"fname" : input1Name, "sets" : input1Sets, "ranking" : player1UpdateRank});
+            this.newItem({"fname" : input1Name, "sets" : input1Sets, "ranking" : player1UpdateRank});
          }
          else{
             namesTemp.map(function(obj, index){
@@ -75,9 +71,11 @@
                   return obj
                }
             });
+            this.updateItem({"fname": namesTemp[nameUnique].fname, "sets": namesTemp[nameUnique].sets, "ranking": namesTemp[nameUnique].ranking});
          }
          if(name2Unique === -1 || name2Unique === undefined){
             namesTemp.push({"fname" : input2Name, "sets" : input2Sets, "ranking" : player2UpdateRank});
+            this.newItem({"fname" : input2Name, "sets" : input2Sets, "ranking" : player2UpdateRank});
          }
          else{
             namesTemp.map(function(obj, index){
@@ -90,9 +88,9 @@
                   return obj
                }
             });
+            this.updateItem({"fname": namesTemp[name2Unique].fname, "sets": namesTemp[name2Unique].sets, "ranking": namesTemp[name2Unique].ranking});
          }
          namesTemp.sort(rankingSort);
-         this.saveData(namesTemp);
          this.setState({names: namesTemp});
          return false;
       },
@@ -210,7 +208,6 @@
          this.setState({nameValue: e.target.innerHTML});
       },
       handleKeyPress: function(e){
-         console.log(e.key);
          var element = this.state.selectedElement;
          if (e.key === "ArrowDown") {
             this.setState({selectedElement: element < this.state.names.length -1 ? element + 1 : element});
@@ -219,6 +216,7 @@
             this.setState({selectedElement: element > 0 ? element - 1 : 0});
          }
          else if (e.key === "Enter" || e.key === "Tab"){
+            // TODO: this errors on new name
             this.setState({nameValue: this.state.names[element].fname});
             this.setState({show: false});
          }
