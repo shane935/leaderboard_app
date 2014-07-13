@@ -5182,6 +5182,8 @@ th.hide-for-touch {
 
 table {
   width: 100%; }
+  table .button {
+    margin: 0; }
 
 .hide {
   display: none; }

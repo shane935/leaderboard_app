@@ -4,13 +4,6 @@
       startApp(data);
    })
 
-   // $.ajax({
-   //    url: 'http://localhost:3000/add',
-   //    type: 'POST',
-   //    data: JSON.stringify({fn3ame: "Peter", sets: "3"}),
-   //    contentType: 'application/json; charset=utf-8'
-   // });
-
    var socket = io();
 
    function rankingSort(a, b){
@@ -22,17 +15,16 @@
          this.props.names.sort(rankingSort);
          return {names : this.props.names}
       },
-      saveData: function(obj){
-         socket.emit('save data', obj);
+      saveUpdates: function(updates){
+         socket.emit('updates', updates);
       },
-      updateComponent: function(updatedData){
-         debugger;
+      updateTable: function(updatedData){
          updatedData.sort(rankingSort);
-         this.setState({names: updatedData})
+         this.setState({names: updatedData});
       },
       componentWillMount: function(){
          var that = this;
-         socket.on('updated', that.updateComponent);
+         socket.on('table updates', that.updateTable);
       },
       handleFormSubmit: function(e){
          e.preventDefault();
@@ -40,7 +32,8 @@
            input2Name = e.target[2].value,
            input1Sets = parseInt(e.target[1].value),
            input2Sets = parseInt(e.target[3].value),
-           namesTemp = this.state.names;
+           namesTemp = this.state.names,
+           updatesToSave = [];
 
          var nameUnique = this.props.names.findIndex(function(obj){
            return obj.fname === input1Name;
@@ -63,6 +56,7 @@
 
          if(nameUnique === -1 || nameUnique === undefined){
             namesTemp.push({"fname" : input1Name, "sets" : input1Sets, "ranking" : player1UpdateRank});
+            updatesToSave.push({"fname" : input1Name, "sets" : input1Sets, "ranking" : player1UpdateRank});
          }
          else{
             namesTemp.map(function(obj, index){
@@ -75,9 +69,12 @@
                   return obj
                }
             });
+            updatesToSave.push({"fname": namesTemp[nameUnique].fname, "sets": namesTemp[nameUnique].sets, "ranking": namesTemp[nameUnique].ranking});
+
          }
          if(name2Unique === -1 || name2Unique === undefined){
             namesTemp.push({"fname" : input2Name, "sets" : input2Sets, "ranking" : player2UpdateRank});
+            updatesToSave.push({"fname" : input2Name, "sets" : input2Sets, "ranking" : player2UpdateRank});
          }
          else{
             namesTemp.map(function(obj, index){
@@ -90,23 +87,44 @@
                   return obj
                }
             });
+            updatesToSave.push({"fname": namesTemp[name2Unique].fname, "sets": namesTemp[name2Unique].sets, "ranking": namesTemp[name2Unique].ranking});
          }
          namesTemp.sort(rankingSort);
-         this.saveData(namesTemp);
+         this.saveUpdates(updatesToSave);
          this.setState({names: namesTemp});
          return false;
       },
       render: function(){
          return(
-            <div>
+            <div className="row">
                <div className="medium-6 medium-push-6 column">
                   <LeaderBoardForm formSubmit={this.handleFormSubmit} names={this.state.names} />
                </div>
                <div className="medium-6 medium-pull-6 column">
+                  <AlertBox />
                   <LeaderBoardTable names={this.state.names} />
                </div>
             </div>
          )
+      }
+   });
+
+   var AlertBox = React.createClass({
+      componentWillMount: function(){
+         var that = this;
+         socket.on('table updates', function(){
+            that.getDOMNode().classList.remove('hide');
+            setTimeout(function(){
+               that.getDOMNode().classList.add('hide');
+            }, 5000);
+         });
+      },
+      render: function(){
+         return (
+            <div data-alert className="alert-box info radius hide">
+              Form has been updated
+            </div>
+         );
       }
    })
 
@@ -118,7 +136,6 @@
                  <th>{name.fname}</th>
                  <th>{name.sets}</th>
                  <th>{parseInt(name.ranking)}</th>
-
                </tr>
             )
          });
@@ -210,7 +227,6 @@
          this.setState({nameValue: e.target.innerHTML});
       },
       handleKeyPress: function(e){
-         console.log(e.key);
          var element = this.state.selectedElement;
          if (e.key === "ArrowDown") {
             this.setState({selectedElement: element < this.state.names.length -1 ? element + 1 : element});
@@ -219,6 +235,10 @@
             this.setState({selectedElement: element > 0 ? element - 1 : 0});
          }
          else if (e.key === "Enter" || e.key === "Tab"){
+            // TODO: this errors on new name
+            if (e.key === "Enter") {
+               e.preventDefault();
+            };
             this.setState({nameValue: this.state.names[element].fname});
             this.setState({show: false});
          }

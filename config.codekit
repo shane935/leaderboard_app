@@ -4412,17 +4412,6 @@
 		"outputStyle": 1,
 		"syntaxCheckerStyle": 1
 		},
-	"\/node_modules\/express\/node_modules\/accepts\/node_modules\/mime-types\/build.js": {
-		"fileType": 64,
-		"ignore": 0,
-		"ignoreWasSetByUser": 0,
-		"inputAbbreviatedPath": "\/node_modules\/express\/node_modules\/accepts\/node_modules\/mime-types\/build.js",
-		"outputAbbreviatedPath": "\/node_modules\/express\/node_modules\/accepts\/node_modules\/mime-types\/min\/build-ck.js",
-		"outputPathIsOutsideProject": 0,
-		"outputPathIsSetByUser": 0,
-		"outputStyle": 1,
-		"syntaxCheckerStyle": 1
-		},
 	"\/node_modules\/express\/node_modules\/accepts\/node_modules\/mime-types\/lib\/index.js": {
 		"fileType": 64,
 		"ignore": 0,
@@ -4457,28 +4446,6 @@
 		"outputAbbreviatedPath": "\/node_modules\/express\/node_modules\/accepts\/node_modules\/mime-types\/SOURCES.html",
 		"outputPathIsOutsideProject": 0,
 		"outputPathIsSetByUser": 0
-		},
-	"\/node_modules\/express\/node_modules\/accepts\/node_modules\/mime-types\/test\/mime.js": {
-		"fileType": 64,
-		"ignore": 0,
-		"ignoreWasSetByUser": 0,
-		"inputAbbreviatedPath": "\/node_modules\/express\/node_modules\/accepts\/node_modules\/mime-types\/test\/mime.js",
-		"outputAbbreviatedPath": "\/node_modules\/express\/node_modules\/accepts\/node_modules\/mime-types\/test\/min\/mime-ck.js",
-		"outputPathIsOutsideProject": 0,
-		"outputPathIsSetByUser": 0,
-		"outputStyle": 1,
-		"syntaxCheckerStyle": 1
-		},
-	"\/node_modules\/express\/node_modules\/accepts\/node_modules\/mime-types\/test\/test.js": {
-		"fileType": 64,
-		"ignore": 0,
-		"ignoreWasSetByUser": 0,
-		"inputAbbreviatedPath": "\/node_modules\/express\/node_modules\/accepts\/node_modules\/mime-types\/test\/test.js",
-		"outputAbbreviatedPath": "\/node_modules\/express\/node_modules\/accepts\/node_modules\/mime-types\/test\/min\/test-ck.js",
-		"outputPathIsOutsideProject": 0,
-		"outputPathIsSetByUser": 0,
-		"outputStyle": 1,
-		"syntaxCheckerStyle": 1
 		},
 	"\/node_modules\/express\/node_modules\/accepts\/node_modules\/negotiator\/lib\/charset.js": {
 		"fileType": 64,

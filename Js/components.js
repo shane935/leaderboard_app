@@ -96,7 +96,7 @@
       },
       render: function(){
          return(
-            <div>
+            <div className="row">
                <div className="medium-6 medium-push-6 column">
                   <LeaderBoardForm formSubmit={this.handleFormSubmit} names={this.state.names} />
                </div>
