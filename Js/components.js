@@ -1,10 +1,11 @@
    /** @jsx React.DOM */
 
-   "use strict"
+(function(){
+   "use strict";
 
    $.get("http://localhost:3000/data", function(data){
       startApp(data);
-   })
+   });
 
    var socket = io();
 
@@ -12,10 +13,16 @@
       return b.ranking - a.ranking;
    }
 
+   function calculateElo(playerRanking, opponentRanking, playerSets, opponentSets){
+      var expectedWin = 1/(1+Math.pow(10, (opponentRanking - playerRanking)/400)),
+         expectedScore = expectedWin * (playerSets + opponentSets);
+         return playerRanking + 32*(playerSets - expectedScore);
+   }
+
    var LeaderBoardApp = React.createClass({
       getInitialState: function(){
          this.props.names.sort(rankingSort);
-         return {names : this.props.names}
+         return {names : this.props.names};
       },
       saveUpdates: function(updates){
          socket.emit('updates', updates);
@@ -44,16 +51,10 @@
            return obj.fname === input2Name;
          });
 
-         // Ranking logic based on ELO.
-
-         var player1Ranking = nameUnique != -1 ? namesTemp[nameUnique].ranking : 1000,
-            player2Ranking = name2Unique != -1 ? namesTemp[name2Unique].ranking : 1000,
-            player1ExpectedWin = 1/(1+Math.pow(10, (player2Ranking - player1Ranking)/400)),
-            player2ExpectedWin = 1/(1+Math.pow(10, (player1Ranking - player2Ranking)/400)),
-            player1ExpectedScore = player1ExpectedWin * (input1Sets + input2Sets),
-            player2ExpectedScore = player2ExpectedWin * (input1Sets + input2Sets),
-            player1UpdateRank = player1Ranking + 32*(input1Sets - player1ExpectedScore),
-            player2UpdateRank = player2Ranking + 32*(input2Sets - player2ExpectedScore);
+         var player1Ranking = nameUnique !== -1 ? namesTemp[nameUnique].ranking : 1000,
+            player2Ranking = name2Unique !== -1 ? namesTemp[name2Unique].ranking : 1000,
+            player1UpdateRank = calculateElo(player1Ranking, player2Ranking, input1Sets, input2Sets),
+            player2UpdateRank = calculateElo(player2Ranking, player1Ranking, input2Sets, input1Sets);
 
          if(nameUnique === -1 || nameUnique === undefined){
             namesTemp.push({"fname" : input1Name, "sets" : input1Sets, "ranking" : player1UpdateRank});
@@ -89,7 +90,7 @@
                   <LeaderBoardTable names={this.state.names} />
                </div>
             </div>
-         )
+         );
       }
    });
 
@@ -110,7 +111,7 @@
             </div>
          );
       }
-   })
+   });
 
    var LeaderBoardTable = React.createClass({
       render: function(){
@@ -121,7 +122,7 @@
                  <th>{name.sets}</th>
                  <th>{parseInt(name.ranking)}</th>
                </tr>
-            )
+            );
          });
          return (
             <table>
@@ -136,9 +137,9 @@
                   {tableRow}
                </tbody>
             </table>
-         )
+         );
       }
-   })
+   });
 
    var LeaderBoardForm = React.createClass({
       render: function() {
@@ -171,14 +172,14 @@
    });
 
    var UserSelect = React.createClass({
-   	getInitialState: function() {
-   		return {
+      getInitialState: function() {
+         return {
             show: false,
             nameValue: '',
             selectedElement: 0,
             names: this.props.names
-         }
-   	},
+         };
+      },
       updateData: function(event){
          var rx = new RegExp(event.target.value, 'i');
          var obj = this.props.names.filter(function (obj){
@@ -187,15 +188,15 @@
          this.setState({names: obj});
          return obj.length;
       },
-   	showList: function(e) {
-   		this.setState({show: true});
+      showList: function(e) {
+         this.setState({show: true});
          this.updateData(e);
-   	},
-   	hideList: function() {
+      },
+      hideList: function() {
          setTimeout(function(){
             this.setState({show: false});
          }.bind(this), 150);
-   	},
+      },
       handleChange: function(e){
          var namesLength = this.updateData(e);
          if(!this.state.show){
@@ -222,30 +223,30 @@
             // TODO: this errors on new name
             if (e.key === "Enter") {
                e.preventDefault();
-            };
+            }
             this.setState({nameValue: this.state.names[element].fname});
             this.setState({show: false});
          }
       },
-   	render: function() {	
-   		return (
-   			<div className="user-select">
-   			  	<label onFocus={this.showList} onBlur={this.hideList}>Player {this.props.player}
-   			    	<input required type="text" onKeyDown={this.handleKeyPress} onChange={this.handleChange} value={this.state.nameValue}/>
-   			  	</label>
-   			  	<UserSelectList showNode={this.state.show} selectedEl={this.state.selectedElement} names={this.state.names} listClick={this.handleListClick}/>
-   			</div>
-   		);
-   	}
+      render: function() { 
+         return (
+            <div className="user-select">
+               <label onFocus={this.showList} onBlur={this.hideList}>Player {this.props.player}
+                  <input required type="text" onKeyDown={this.handleKeyPress} onChange={this.handleChange} value={this.state.nameValue}/>
+               </label>
+               <UserSelectList showNode={this.state.show} selectedEl={this.state.selectedElement} names={this.state.names} listClick={this.handleListClick}/>
+            </div>
+         );
+      }
    });
 
    var UserSelectList = React.createClass({
-   	render: function() {
-   		var cx = React.addons.classSet;
-   		var userSelectClasses = cx({
-   			'user-select-list': true,
-   			'show': this.props.showNode
-   		});
+      render: function() {
+         var cx = React.addons.classSet;
+         var userSelectClasses = cx({
+            'user-select-list': true,
+            'show': this.props.showNode
+         });
          var i = 0;
          var listItem = this.props.names.map(function(names){
             var listActiveClass = cx({
@@ -253,13 +254,13 @@
             });
             return <li className={listActiveClass} onClick={this.props.listClick}>{names.fname}</li>
          }.bind(this));
-   		return (
-   			<ul className={userSelectClasses}>
-   			  	{listItem}
-   			</ul>
-   		)
-   	}
-   })
+         return (
+            <ul className={userSelectClasses}>
+               {listItem}
+            </ul>
+         )
+      }
+   });
 
    function startApp(data){
       React.renderComponent( 
@@ -267,4 +268,6 @@
          document.getElementById('UserSelect')
       );
    }
+})();
+   
 

@@ -32,7 +32,7 @@ app.get('/data', function(request, result){
 });
 
 io.on('connection', function(socket){
-  console.log("Connected")
+  console.log("Connected");
 
   socket.on('updates', function(arr){
     db.collection('rankings', function(err, collection){
