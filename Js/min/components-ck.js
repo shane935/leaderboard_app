@@ -1,5 +1,7 @@
    /** @jsx React.DOM */
 
+   "use strict"
+
    $.get("http://localhost:3000/data", function(data){
       startApp(data);
    })
@@ -53,40 +55,22 @@
             player1UpdateRank = player1Ranking + 32*(input1Sets - player1ExpectedScore),
             player2UpdateRank = player2Ranking + 32*(input2Sets - player2ExpectedScore);
 
-
          if(nameUnique === -1 || nameUnique === undefined){
             namesTemp.push({"fname" : input1Name, "sets" : input1Sets, "ranking" : player1UpdateRank});
             updatesToSave.push({"fname" : input1Name, "sets" : input1Sets, "ranking" : player1UpdateRank});
          }
          else{
-            namesTemp.map(function(obj, index){
-               if (index === nameUnique){
-                  obj.sets = obj.sets + input1Sets;
-                  obj.ranking = player1UpdateRank;
-                  return obj;
-               }
-               else{
-                  return obj
-               }
-            });
+            namesTemp[nameUnique].sets = namesTemp[nameUnique].sets + input1Sets;
+            namesTemp[nameUnique].ranking = player1UpdateRank;
             updatesToSave.push({"fname": namesTemp[nameUnique].fname, "sets": namesTemp[nameUnique].sets, "ranking": namesTemp[nameUnique].ranking});
-
          }
          if(name2Unique === -1 || name2Unique === undefined){
             namesTemp.push({"fname" : input2Name, "sets" : input2Sets, "ranking" : player2UpdateRank});
             updatesToSave.push({"fname" : input2Name, "sets" : input2Sets, "ranking" : player2UpdateRank});
          }
          else{
-            namesTemp.map(function(obj, index){
-               if (index === name2Unique){
-                  obj.sets = obj.sets + input2Sets;
-                  obj.ranking = player2UpdateRank;
-                  return obj;
-               }
-               else{
-                  return obj
-               }
-            });
+            namesTemp[name2Unique].sets = namesTemp[name2Unique].sets + input2Sets;
+            namesTemp[name2Unique].ranking = player2UpdateRank;
             updatesToSave.push({"fname": namesTemp[name2Unique].fname, "sets": namesTemp[name2Unique].sets, "ranking": namesTemp[name2Unique].ranking});
          }
          namesTemp.sort(rankingSort);
@@ -201,7 +185,7 @@
             return obj.fname.match(rx);
          });
          this.setState({names: obj});
-         return obj.length
+         return obj.length;
       },
    	showList: function(e) {
    		this.setState({show: true});
@@ -213,11 +197,11 @@
          }.bind(this), 150);
    	},
       handleChange: function(e){
+         var namesLength = this.updateData(e);
          if(!this.state.show){
             this.setState({show: true});
          }
          this.setState({nameValue: e.target.value});
-         namesLength = this.updateData(e);
          if (this.state.selectedElement > namesLength) {
             this.setState({selectedElement: 0});
          }
