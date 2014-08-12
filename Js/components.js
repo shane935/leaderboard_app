@@ -21,9 +21,7 @@
 
    var LeaderBoardApp = React.createClass({
       getInitialState: function(){
-         if (this.props.names !== "" || typeof this.props.names === "object") {
-            this.props.names.sort(rankingSort);
-         };
+         this.props.names.sort(rankingSort);
          return {names : this.props.names};
       },
       saveUpdates: function(updates){
@@ -32,9 +30,6 @@
       updateTable: function(updatedData){
          updatedData.sort(rankingSort);
          this.setState({names: updatedData});
-      },
-      updateSave: function(){
-         // Process master array update state and save; 
       },
       componentWillMount: function(){
          var that = this;
@@ -49,6 +44,28 @@
            namesTemp = this.state.names,
            updatesToSave = [];
 
+         function updateSave(index, name, wonSets, rank){
+            if(index === -1 || index === undefined){
+               namesTemp.push({fname : name, totalSets : wonSets, ranking : rank});
+               updatesToSave.push({
+                  fname : name,
+                  totalSets : wonSets,
+                  sets : wonSets,
+                  ranking : rank,
+               });
+            }
+            else{
+               namesTemp[index].totalSets = namesTemp[index].totalSets + wonSets;
+               namesTemp[index].ranking = rank;
+               updatesToSave.push({
+                  fname: namesTemp[index].fname,
+                  totalSets: namesTemp[index].totalSets,
+                  sets : wonSets,
+                  ranking: namesTemp[index].ranking,
+               });
+            }
+         }
+
          var nameUnique = this.props.names.findIndex(function(obj){
            return obj.fname === input1Name;
          });
@@ -61,44 +78,9 @@
             player1UpdateRank = calculateElo(player1Ranking, player2Ranking, input1Sets, input2Sets),
             player2UpdateRank = calculateElo(player2Ranking, player1Ranking, input2Sets, input1Sets);
 
-         if(nameUnique === -1 || nameUnique === undefined){
-            namesTemp.push({fname : input1Name, totalSets : input1Sets, ranking : player1UpdateRank});
-            updatesToSave.push({
-               fname : input1Name,
-               totalSets : input1Sets,
-               sets : input1Sets,
-               ranking : player1UpdateRank,
-            });
-         }
-         else{
-            namesTemp[nameUnique].totalSets = namesTemp[nameUnique].totalSets + input1Sets;
-            namesTemp[nameUnique].ranking = player1UpdateRank;
-            updatesToSave.push({
-               fname: namesTemp[nameUnique].fname,
-               totalSets: namesTemp[nameUnique].totalSets,
-               sets : input1Sets,
-               ranking: namesTemp[nameUnique].ranking,
-            });
-         }
-         if(name2Unique === -1 || name2Unique === undefined){
-            namesTemp.push({fname : input2Name, totalSets : input2Sets, ranking : player2UpdateRank});
-            updatesToSave.push({
-               fname: input2Name,
-               totalSets: input2Sets,
-               sets : input2Sets,
-               ranking: player2UpdateRank,
-            });
-         }
-         else{
-            namesTemp[name2Unique].totalSets = namesTemp[name2Unique].totalSets + input2Sets;
-            namesTemp[name2Unique].ranking = player2UpdateRank;
-            updatesToSave.push({
-               fname: namesTemp[name2Unique].fname,
-               totalSets: namesTemp[name2Unique].totalSets,
-               sets : input2Sets,
-               ranking: namesTemp[name2Unique].ranking,
-            });
-         }
+         updateSave(nameUnique, input1Name, input1Sets, player1UpdateRank);
+         updateSave(name2Unique, input2Name, input2Sets, player2UpdateRank);
+         
          namesTemp.sort(rankingSort);
          this.saveUpdates(updatesToSave);
          this.setState({names: namesTemp});
@@ -140,20 +122,15 @@
 
    var LeaderBoardTable = React.createClass({
       render: function(){
-         if (this.props.names !== "" || typeof this.props.names === "object") {
-            var tableRow = this.props.names.map(function(name){
-               return (
-                  <tr>
-                    <th>{name.fname}</th>
-                    <th>{name.totalSets}</th>
-                    <th>{parseInt(name.ranking)}</th>
-                  </tr>
-               );
-            });
-         }
-         else{
-            tableRow = null;
-         }    
+         var tableRow = this.props.names.map(function(name){
+            return (
+               <tr>
+                 <th>{name.fname}</th>
+                 <th>{name.totalSets}</th>
+                 <th>{parseInt(name.ranking)}</th>
+               </tr>
+            );
+         });
          return (
             <table>
                <thead>
@@ -250,11 +227,12 @@
             this.setState({selectedElement: element > 0 ? element - 1 : 0});
          }
          else if (e.key === "Enter" || e.key === "Tab"){
-            // TODO: this errors on new name
             if (e.key === "Enter") {
                e.preventDefault();
             }
-            this.setState({nameValue: this.state.names[element].fname});
+            if (this.state.names[element]) {
+               this.setState({nameValue: this.state.names[element].fname});
+            }
             this.setState({show: false});
          }
       },
@@ -278,17 +256,12 @@
             'show': this.props.showNode
          });
          var i = 0;
-         if (this.props.names !== "" || typeof this.props.names === "object") {
-            var listItem = this.props.names.map(function(names){
-               var listActiveClass = cx({
-                  "active": i++ === this.props.selectedEl
-               });
-               return <li className={listActiveClass} onClick={this.props.listClick}>{names.fname}</li>
-            }.bind(this));
-         }
-         else{
-            listItem = null;
-         }         
+         var listItem = this.props.names.map(function(names){
+            var listActiveClass = cx({
+               "active": i++ === this.props.selectedEl
+            });
+            return <li className={listActiveClass} onClick={this.props.listClick}>{names.fname}</li>
+         }.bind(this));
          return (
             <ul className={userSelectClasses}>
                {listItem}
