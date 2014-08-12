@@ -140,15 +140,20 @@
 
    var LeaderBoardTable = React.createClass({
       render: function(){
-         var tableRow = this.props.names.map(function(name){
-            return (
-               <tr>
-                 <th>{name.fname}</th>
-                 <th>{name.totalSets}</th>
-                 <th>{parseInt(name.ranking)}</th>
-               </tr>
-            );
-         });
+         if (this.props.names !== "" || typeof this.props.names === "object") {
+            var tableRow = this.props.names.map(function(name){
+               return (
+                  <tr>
+                    <th>{name.fname}</th>
+                    <th>{name.totalSets}</th>
+                    <th>{parseInt(name.ranking)}</th>
+                  </tr>
+               );
+            });
+         }
+         else{
+            tableRow = null;
+         }    
          return (
             <table>
                <thead>
