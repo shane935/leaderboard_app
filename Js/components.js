@@ -3,7 +3,7 @@
 (function(){
    "use strict";
 
-   $.get("http://localhost:3000/data", function(data){
+   $.get("/data", function(data){
       startApp(data);
    });
 
@@ -31,6 +31,9 @@
          updatedData.sort(rankingSort);
          this.setState({names: updatedData});
       },
+      updateSave: function(){
+         // Process master array update state and save; 
+      },
       componentWillMount: function(){
          var that = this;
          socket.on('table updates', that.updateTable);
@@ -57,22 +60,42 @@
             player2UpdateRank = calculateElo(player2Ranking, player1Ranking, input2Sets, input1Sets);
 
          if(nameUnique === -1 || nameUnique === undefined){
-            namesTemp.push({"fname" : input1Name, "sets" : input1Sets, "ranking" : player1UpdateRank});
-            updatesToSave.push({"fname" : input1Name, "sets" : input1Sets, "ranking" : player1UpdateRank});
+            namesTemp.push({fname : input1Name, totalSets : input1Sets, ranking : player1UpdateRank});
+            updatesToSave.push({
+               fname : input1Name,
+               totalSets : input1Sets,
+               sets : input1Sets,
+               ranking : player1UpdateRank,
+            });
          }
          else{
-            namesTemp[nameUnique].sets = namesTemp[nameUnique].sets + input1Sets;
+            namesTemp[nameUnique].totalSets = namesTemp[nameUnique].totalSets + input1Sets;
             namesTemp[nameUnique].ranking = player1UpdateRank;
-            updatesToSave.push({"fname": namesTemp[nameUnique].fname, "sets": namesTemp[nameUnique].sets, "ranking": namesTemp[nameUnique].ranking});
+            updatesToSave.push({
+               fname: namesTemp[nameUnique].fname,
+               totalSets: namesTemp[nameUnique].totalSets,
+               sets : input1Sets,
+               ranking: namesTemp[nameUnique].ranking,
+            });
          }
          if(name2Unique === -1 || name2Unique === undefined){
-            namesTemp.push({"fname" : input2Name, "sets" : input2Sets, "ranking" : player2UpdateRank});
-            updatesToSave.push({"fname" : input2Name, "sets" : input2Sets, "ranking" : player2UpdateRank});
+            namesTemp.push({fname : input2Name, totalSets : input2Sets, ranking : player2UpdateRank});
+            updatesToSave.push({
+               fname: input2Name,
+               totalSets: input2Sets,
+               sets : input2Sets,
+               ranking: player2UpdateRank,
+            });
          }
          else{
-            namesTemp[name2Unique].sets = namesTemp[name2Unique].sets + input2Sets;
+            namesTemp[name2Unique].totalSets = namesTemp[name2Unique].totalSets + input2Sets;
             namesTemp[name2Unique].ranking = player2UpdateRank;
-            updatesToSave.push({"fname": namesTemp[name2Unique].fname, "sets": namesTemp[name2Unique].sets, "ranking": namesTemp[name2Unique].ranking});
+            updatesToSave.push({
+               fname: namesTemp[name2Unique].fname,
+               totalSets: namesTemp[name2Unique].totalSets,
+               sets : input2Sets,
+               ranking: namesTemp[name2Unique].ranking,
+            });
          }
          namesTemp.sort(rankingSort);
          this.saveUpdates(updatesToSave);
@@ -119,7 +142,7 @@
             return (
                <tr>
                  <th>{name.fname}</th>
-                 <th>{name.sets}</th>
+                 <th>{name.totalSets}</th>
                  <th>{parseInt(name.ranking)}</th>
                </tr>
             );
