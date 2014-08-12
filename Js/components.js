@@ -21,7 +21,9 @@
 
    var LeaderBoardApp = React.createClass({
       getInitialState: function(){
-         this.props.names.sort(rankingSort);
+         if (this.props.names !== "" || typeof this.props.names === "object") {
+            this.props.names.sort(rankingSort);
+         };
          return {names : this.props.names};
       },
       saveUpdates: function(updates){
