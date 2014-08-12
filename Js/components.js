@@ -278,7 +278,7 @@
                "active": i++ === this.props.selectedEl
             });
             return <li className={listActiveClass} onClick={this.props.listClick}>{names.fname}</li>
-         }.bind(this));
+         }.bind(this)) || null;
          return (
             <ul className={userSelectClasses}>
                {listItem}
