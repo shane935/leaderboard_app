@@ -273,12 +273,17 @@
             'show': this.props.showNode
          });
          var i = 0;
-         var listItem = this.props.names.map(function(names){
-            var listActiveClass = cx({
-               "active": i++ === this.props.selectedEl
-            });
-            return <li className={listActiveClass} onClick={this.props.listClick}>{names.fname}</li>
-         }.bind(this)) || null;
+         if (this.props.names !== "" || typeof this.props.names === "object") {
+            var listItem = this.props.names.map(function(names){
+               var listActiveClass = cx({
+                  "active": i++ === this.props.selectedEl
+               });
+               return <li className={listActiveClass} onClick={this.props.listClick}>{names.fname}</li>
+            }.bind(this));
+         }
+         else{
+            listItem = null;
+         }         
          return (
             <ul className={userSelectClasses}>
                {listItem}
