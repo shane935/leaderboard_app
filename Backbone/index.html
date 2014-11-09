@@ -9,8 +9,12 @@
         <h1>Squash Leaderboard</h1>
       </div>
       <hr />
-      <div id="names-list">
-      </div>
+      <form id="form">
+        <div id="PlayerOne"></div>
+        <div id="PlayerTwo"></div>
+        <button>Submit</button>
+      </form>
+
 
 
     </div>
@@ -22,16 +26,12 @@
     </script>
 
     <script id="names-input-template" type="text/x-handlebars-template">
-      <form>
         <div class="user-select">
           <label>Player 1
             <input required type="text"/> 
           </label>
-        <button>Submit</button>
-
           <ul class="user-select-list js-user-select-list"></ul>
         </div>
-      </form>
     </script>
 
     <script src="bower_components/jquery/dist/jquery.js"></script>

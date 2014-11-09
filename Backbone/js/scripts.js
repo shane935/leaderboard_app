@@ -7,16 +7,16 @@
 	var Name = Backbone.Model.extend({});
 
 	var name1 = new Name({
-		name: "Shane"
+		name: 'Shane'
 	});
 	var name2 = new Name({
-		name: "John"
+		name: 'John'
 	});
 	var name3 = new Name({
-		name: "Peter"
+		name: 'Peter'
 	});
 	var name4 = new Name({
-		name: "Mike"
+		name: 'Mike'
 	});
 
 	/**************************************
@@ -29,13 +29,31 @@
 
 	var names = new NameCollection([name1, name2, name3, name4]);
 
-	names.on("add", function() {
-		nameView.render(names);
-	});
-
 	/**************************************
 	 *	Views
 	 **************************************/
+
+	var NamesSubmit = Backbone.View.extend({
+		events: {
+			'submit': 'addName',
+		},
+
+		addName: function(e) {
+			e.preventDefault();
+			var namesArray = [];
+			this.$el.find('input').each(function() {
+				$input = $(this);
+				namesArray.push({
+					name: $input.val()
+				});
+				$input.val('');
+			});
+
+			names.add(namesArray);
+			console.log(names);
+		}
+
+	});
 
 	var NameView = Backbone.View.extend({
 
@@ -43,20 +61,21 @@
 		templateName: Handlebars.compile($('#names-input-template').html()),
 
 		events: {
-			'submit form': 'addName',
-			'keydown input': 'inputKey',
+			'keyup input': 'inputKey',
 			'focus input': 'inputFocus',
 			'blur input': 'inputBlur'
 		},
 
 		initialize: function() {
-			this.$el = $('#names-list');
-			this.selectedName = 1;
+			this.listenTo(this.collection, 'add', this.render);
 		},
 
 		render: function(collection) {
 
-			if (this.$el.has('form').length === 0) {
+			debugger;
+			collection = typeof collection === 'undefined' ? this.collection : collection;
+
+			if (this.$el.has('input').length === 0) {
 				this.$form = this.$el.html(this.templateName());
 				this.$input = this.$form.find('input');
 
@@ -70,15 +89,6 @@
 			return this;
 		},
 
-		addName: function(e) {
-			e.preventDefault();
-			var name = new Name({
-				name: this.$input.val()
-			});
-			this.$input.val('');
-			names.add(name);
-		},
-
 		inputFocus: function() {
 			this.$ul.show();
 		},
@@ -88,7 +98,7 @@
 		},
 
 		inputKey: function(e) {
-			var $activeItem = this.$ul.find('.active')
+			var $activeItem = this.$ul.find('.active');
 			if (e.keyCode === 40) { // Up Arrow
 				if ($activeItem.next().length !== 0) {
 					$activeItem.removeClass('active').next().addClass('active');
@@ -99,7 +109,7 @@
 				}
 			} else if (e.keyCode === 9) { // Tab Key
 				this.$input.val($activeItem.text());
-			} else if (e.keyCode === 13) {
+			} else if (e.keyCode === 13) { // Enter Key
 				e.preventDefault();
 				this.$input.val($activeItem.text());
 				this.inputBlur();
@@ -114,8 +124,25 @@
 
 	});
 
-	var nameView = new NameView({});
+	var namesSubmit = new NamesSubmit({
+		el: document.getElementById('form')
+	});
 
-	nameView.render(names);
+	var player1 = new NameView({
+		el: document.getElementById('PlayerOne'),
+		collection: names
+	});
+
+	var player2 = new NameView({
+		el: document.getElementById('PlayerTwo'),
+		collection: names
+	});
+
+	function renderPlayerInput() {
+		player1.render();
+		player2.render();
+	}
+
+	renderPlayerInput();
 
 }());
