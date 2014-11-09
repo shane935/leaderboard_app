@@ -1,0 +1,29 @@
+<head>
+	<title>Meteor</title>
+</head>
+<body>
+	<div class="row">
+		<div class="small-12 column">
+			<h1>Squash Leaderboard</h1>
+		</div>
+		<hr />
+		{{> dropdown}}
+	</div>
+</body>
+<template name="dropdown">
+	<form class="dropdown-form" action="">
+		<div class="user-select">
+			<label>Player 1
+				<input autocomplete="off" required value="{{searchText}}" name="dropdown" type="text"/>
+			</label>
+			{{> dropdownList}}
+		</div>
+	</form>
+</template>
+<template name="dropdownList">
+<ul class="user-select-list js-user-select-list {{#if hide}}hide{{/if}}">
+	{{#each names}}
+		<li>{{name}}</li>
+	{{/each}}
+</ul>
+</template>

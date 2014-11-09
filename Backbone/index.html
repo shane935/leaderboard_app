@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <link rel="stylesheet" type="text/css" href="css/style.css">
+  </head>
+  <body>
+    <div class="row">
+      <div class="small-12 column">
+        <h1>Squash Leaderboard</h1>
+      </div>
+      <hr />
+      <form id="form">
+        <div id="PlayerOne"></div>
+        <div id="PlayerTwo"></div>
+        <button>Submit</button>
+      </form>
+
+
+
+    </div>
+
+    <script id="names-template" type="text/x-handlebars-template">
+      {{#each item}}
+        <li>{{name}}</li>
+      {{/each}}
+    </script>
+
+    <script id="names-input-template" type="text/x-handlebars-template">
+        <div class="user-select">
+          <label>Player 1
+            <input required type="text"/> 
+          </label>
+          <ul class="user-select-list js-user-select-list"></ul>
+        </div>
+    </script>
+
+    <script src="bower_components/jquery/dist/jquery.js"></script>
+    <script src="bower_components/underscore/underscore.js"></script>
+    <script src="bower_components/handlebars/handlebars.js"></script>
+    <script src="bower_components/backbone/backbone.js"></script>
+    <script src="js/scripts.js"></script>
+
+  </body>
+</html>
