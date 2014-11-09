@@ -2,5 +2,6 @@
 
 Simple leaderboard app
 
-React Version: Complete
-Backbone Version: In Progress
+* React Version: Complete
+* Backbone Version: On hold
+* Meteor Version: In progress
